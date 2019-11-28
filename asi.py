@@ -26,7 +26,7 @@ class ASICamera:
             raise RuntimeError(msg)
 
         self._info = self.get_camera_property(self._camera_index)
-        self._camera_ID = self.info['camera_ID']
+        self._camera_ID = self._info['camera_ID']
 
         error_code = self._CDLL.ASIOpenCamera(self._camera_ID)
         if error_code != ErroCode.SUCCESS:
