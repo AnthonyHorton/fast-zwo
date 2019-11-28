@@ -77,7 +77,8 @@ class ASICamera:
             # Expect some dropped frames during video capture
             return None
         else:
-            return self._image_buffer.copy()
+            # Fix scaling then change to signed integer
+            return np.right_shift(self._image_buffer, 4).astype(np.int16)
 
 
     def _call_function(self, function_name, camera_ID, *args):
@@ -172,6 +173,8 @@ class ASICamera:
 
     def _image_array(self, width, height, image_type):
         """ Creates a suitable numpy array for storing image data """
+        height = int(height)
+        width = int(width)
 
         if image_type in ('RAW8', 'Y8'):
             image_array = np.empty((height, width), dtype=np.uint8, order='C')
