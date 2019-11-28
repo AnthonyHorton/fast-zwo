@@ -76,24 +76,24 @@ class ASICamera:
 class ErrorCode(enum.IntEnum):
     """ Error codes """
     SUCCESS = 0
-    INVALID_INDEX = enum.auto()  # No camera connected or index value out of boundary
-    INVALID_ID = enum.auto()
-    INVALID_CONTROL_TYPE = enum.auto()
-    CAMERA_CLOSED = enum.auto()  # Camera didn't open
-    CAMERA_REMOVED = enum.auto()  # Failed to fine the camera, maybe it was removed
-    INVALID_PATH = enum.auto()  # Cannot find the path of the file
-    INVALID_FILEFORMAT = enum.auto()
-    INVALID_SIZE = enum.auto()  # Wrong video format size
-    INVALID_IMGTYPE = enum.auto()  # Unsupported image format
-    OUTOF_BOUNDARY = enum.auto()  # The startpos is out of boundary
-    TIMEOUT = enum.auto()
-    INVALID_SEQUENCE = enum.auto()  # Stop capture first
-    BUFFER_TOO_SMALL = enum.auto()
-    VIDEO_MODE_ACTIVE = enum.auto()
-    EXPOSURE_IN_PROGRESS = enum.auto()
-    GENERAL_ERROR = enum.auto()  # General error, e.g. value is out of valid range
-    INVALID_MODE = enum.auto()  # The current mode is wrong
-    END = enum.auto()
+    INVALID_INDEX = 1  # No camera connected or index value out of boundary
+    INVALID_ID = 2
+    INVALID_CONTROL_TYPE = 3
+    CAMERA_CLOSED = 4  # Camera didn't open
+    CAMERA_REMOVED = 5  # Failed to fine the camera, maybe it was removed
+    INVALID_PATH = 6  # Cannot find the path of the file
+    INVALID_FILEFORMAT = 7
+    INVALID_SIZE = 8  # Wrong video format size
+    INVALID_IMGTYPE = 9  # Unsupported image format
+    OUTOF_BOUNDARY = 10  # The startpos is out of boundary
+    TIMEOUT = 11
+    INVALID_SEQUENCE = 12  # Stop capture first
+    BUFFER_TOO_SMALL = 13
+    VIDEO_MODE_ACTIVE = 14
+    EXPOSURE_IN_PROGRESS = 15
+    GENERAL_ERROR = 16  # General error, e.g. value is out of valid range
+    INVALID_MODE = 17  # The current mode is wrong
+    END = 18
 
 
 class CameraInfo(ctypes.Structure):
