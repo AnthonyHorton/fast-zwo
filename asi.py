@@ -84,6 +84,68 @@ class ASICamera:
         return pythonic_info
 
 
+ID_MAX = 128  # Maximum value for camera integer ID (camera_ID)
+
+
+@enum.unique
+class BayerPattern(enum.IntEnum):
+    """ Bayer filter type """
+    RG = 0
+    BG = enum.auto()
+    GR = enum.auto()
+    GB = enum.auto()
+
+
+@enum.unique
+class ImgType(enum.IntEnum):
+    """ Supported video format """
+    RAW8 = 0
+    RGB24 = enum.auto()
+    RAW16 = enum.auto()
+    Y8 = enum.auto()
+    END = -1
+
+
+@enum.unique
+class GuideDirection(enum.IntEnum):
+    """ Guider direction """
+    NORTH = 0
+    SOUTH = enum.auto()
+    EAST = enum.auto()
+    WEST = enum.auto()
+
+
+@enum.unique
+class FlipStatus(enum.IntEnum):
+    """ Flip status """
+    NONE = 0
+    HORIZ = enum.auto()
+    VERT = enum.auto()
+    BOTH = enum.auto()
+
+
+@enum.unique
+class CameraMode(enum.IntEnum):
+    """ Camera status """
+    NORMAL = 0
+    TRIG_SOFT_EDGE = enum.auto()
+    TRIG_RISE_EDGE = enum.auto()
+    TRIG_FALL_EDGE = enum.auto()
+    TRIG_SOFT_LEVEL = enum.auto()
+    TRIG_HIGH_LEVEL = enum.auto()
+    TRIG_LOW_LEVEL = enum.auto()
+    END = -1
+
+
+@enum.unique
+class TrigOutput(enum.IntEnum):
+    """External trigger output."""
+
+    PINA = 0  # Only Pin A output
+    PINB = enum.auto()  # Only Pin B outoput
+    NONE = -1
+
+
 @enum.unique
 class ErrorCode(enum.IntEnum):
     """ Error codes """
@@ -128,3 +190,60 @@ class CameraInfo(ctypes.Structure):
                 ('bit_depth', ctypes.c_int),
                 ('is_trigger_camera', ctypes.c_int),
                 ('unused', ctypes.c_char * 16)]
+class ControlType(enum.IntEnum):
+    """ Control types """
+    GAIN = 0
+    EXPOSURE = enum.auto()
+    GAMMA = enum.auto()
+    WB_R = enum.auto()
+    WB_B = enum.auto()
+    OFFSET = enum.auto()
+    BANDWIDTHOVERLOAD = enum.auto()
+    OVERCLOCK = enum.auto()
+    TEMPERATURE = enum.auto()  # Returns temperature*10
+    FLIP = enum.auto()
+    AUTO_MAX_GAIN = enum.auto()
+    AUTO_MAX_EXP = enum.auto()  # in microseconds
+    AUTO_TARGET_BRIGHTNESS = enum.auto()
+    HARDWARE_BIN = enum.auto()
+    HIGH_SPEED_MODE = enum.auto()
+    COOLER_POWER_PERC = enum.auto()
+    TARGET_TEMP = enum.auto()  # NOT *10
+    COOLER_ON = enum.auto()
+    MONO_BIN = enum.auto()  # Leads to less grid at software bin mode for colour camera
+    FAN_ON = enum.auto()
+    PATTERN_ADJUST = enum.auto()
+    ANTI_DEW_HEATER = enum.auto()
+
+    BRIGHTNESS = OFFSET
+    AUTO_MAX_BRIGHTNESS = AUTO_TARGET_BRIGHTNESS
+
+
+class ControlCaps(ctypes.Structure):
+    """ Structure for caps (limits) on allowable parameter values for each camera control """
+    _fields_ = [('name', ctypes.c_char * 64),  # The name of the control, .e.g. Exposure, Gain
+                ('description', ctypes.c_char * 128),  # Description of the command
+                ('max_value', ctypes.c_long),
+                ('min_value', ctypes.c_long),
+                ('default_value', ctypes.c_long),
+                ('is_auto_supported', ctypes.c_int),
+                ('is_writable', ctypes.c_int),  # Some can be read only, e.g. temperature
+                ('control_type', ctypes.c_int),  # ControlType used to get/set value
+                ('unused', ctypes.c_char * 32)]
+
+
+class ExposureStatus(enum.IntEnum):
+    """ Exposure status codes """
+    IDLE = 0
+    WORKING = enum.auto()
+    SUCCESS = enum.auto()
+    FAILED = enum.auto()
+
+
+class ID(ctypes.Structure):
+    _fields_ = [('id', ctypes.c_ubyte * 8)]
+
+
+class SupportedMode(ctypes.Structure):
+    """ Array of supported CameraModes, terminated with CameraMode.END """
+    _fields_ = [('modes', ctypes.c_int * 16)]
