@@ -20,8 +20,8 @@ class ASICamera:
 
         self._camera_index = camera_index
         if n_cameras - self._camera_index < 1:
-            mag = "Requested camera index {}, but only {} cameras found!".format(self._camera_index,
-                                                                                 n_cameras)
+            msg = "Requested camera index {} but only {} cameras found!".format(self._camera_index,
+                                                                                n_cameras)
             warnings.warn(msg)
             raise RuntimeError(msg)
 
@@ -29,13 +29,13 @@ class ASICamera:
         self._camera_ID = self._info['camera_ID']
 
         error_code = self._CDLL.ASIOpenCamera(self._camera_ID)
-        if error_code != ErroCode.SUCCESS:
+        if error_code != ErrorCode.SUCCESS:
             msg = "Couldn't open camera: {}".format(ErrorCode(error_code).name)
             warnings.warn(msg)
             raise RuntimeError(msg)
 
-        result = self._CDLL.ASIInitCamera(self._camera_ID)
-        if error_code != ErroCode.SUCCESS:
+        error_code = self._CDLL.ASIInitCamera(self._camera_ID)
+        if error_code != ErrorCode.SUCCESS:
             msg = "Couldn't init camera: {}".format(ErrorCode(error_code).name)
             warnings.warn(msg)
             raise RuntimeError(msg)
@@ -144,8 +144,6 @@ class ASICamera:
 
     def _image_array(self, width, height, image_type):
         """ Creates a suitable numpy array for storing image data """
-        width = int(get_quantity_value(width, unit=u.pixel))
-        height = int(get_quantity_value(height, unit=u.pixel))
 
         if image_type in ('RAW8', 'Y8'):
             image_array = np.empty((height, width), dtype=np.uint8, order='C')
