@@ -78,7 +78,7 @@ class ASICamera:
             return None
         else:
             # Fix scaling then change to signed integer
-            return np.right_shift(self._image_buffer, 4).astype(np.int16)
+            return np.right_shift(self._image_buffer, 4)
 
 
     def _call_function(self, function_name, camera_ID, *args):
