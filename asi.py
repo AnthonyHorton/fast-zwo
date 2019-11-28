@@ -77,7 +77,7 @@ class ASICamera:
             # Expect some dropped frames during video capture
             return None
         else:
-            # Fix scaling then change to signed integer
+            # Fix scaling and return
             return np.right_shift(self._image_buffer, 4)
 
 
