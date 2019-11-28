@@ -17,14 +17,14 @@ class ASICamera:
         self._camera_ID = self.info['camera_ID']
 
         error_code = self._CDLL.ASIOpenCamera(self._camera_ID)
-        if result != ErroCode.SUCCESS:
-            msg = f"Couldn't open camera: {result}"
+        if error_code != ErroCode.SUCCESS:
+            msg = "Couldn't open camera: {}".format(error_code)
             warnings.warn(msg)
             raise RuntimeError(msg)
 
         result = self._CDLL.ASIInitCamera(self._camera_ID)
         if error_code != ErroCode.SUCCESS:
-            msg = f"Couldn't init camera: {result}"
+            msg = "Couldn't init camera: {}".format(result)
             warnings.warn(msg)
             raise RuntimeError(msg)
 
@@ -33,7 +33,7 @@ class ASICamera:
         camera_info = CameraInfo()
         error_code = self._CDLL.ASIGetCameraProperty(ctypes.byref(camera_info), camera_index)
         if error_code != ErrorCode.SUCCESS:
-            msg = f"Error getting camera properties: {error_code}"
+            msg = "Error getting camera properties: {}".format(error_code)
             warnings.warn(msg)
             raise RuntimeError(msg)
 
@@ -46,7 +46,7 @@ class ASICamera:
         error_code = function(ctypes.c_int(camera_ID), *args)
         if error_code != ErrorCode.SUCCESS:
             msg = "Error calling {}: {}".format(function_name, ErrorCode(error_code).name)
-            self.logger.error(msg)
+            warnings.warn(msg)
             raise RuntimeError(msg)
 
     def _parse_info(self, camera_info):
