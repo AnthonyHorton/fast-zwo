@@ -16,6 +16,6 @@ def frame_rate_test(camera, n=100):
     return fps
 
 
-if __name__ == __main__:
+if __name__ == '__main__':
     camera = ASICamera(library_path='/usr/local/lib/libASICamera2.py')
     frame_rate_test(camera, n=1000)
