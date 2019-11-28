@@ -40,6 +40,10 @@ class ASICamera:
             warnings.warn(msg)
             raise RuntimeError(msg)
 
+        self._image_buffer = self._image_array(width=self._info['max_width'].value,
+                                               height=self._info['max_height'].value,
+                                               image_type="RAW16")
+
     def get_camera_property(self, camera_index):
         """ Get properties of the camera with given index """
         camera_info = CameraInfo()
@@ -51,6 +55,30 @@ class ASICamera:
 
         pythonic_info = self._parse_info(camera_info)
         return pythonic_info
+
+    def start_video_capture(self):
+        """ Start video capture mode on camera with given integer ID """
+        self._call_function('ASIStartVideoCapture', self._camera_ID)
+
+    def stop_video_capture(self):
+        """ Stop video capture mode on camera with given integer ID """
+        self._call_function('ASIStopVideoCapture', self._camera_ID)
+
+    def get_video_data(self):
+        """ Get the image data from the next available video frame """
+        try:
+            self._call_function('ASIGetVideoData',
+                                self._camera_ID,
+                                self._image_buffer.ctypes.data_as(ctypes.POINTER(ctypes.c_byte)),
+                                ctypes.c_long(video_data.nbytes),
+                                ctypes.c_int(-1))
+            # If set timeout to anything but -1 (no timeout) this call times out instantly?
+        except RuntimeError:
+            # Expect some dropped frames during video capture
+            return None
+        else:
+            return self._image_buffer.copy()
+
 
     def _call_function(self, function_name, camera_ID, *args):
         """ Utility function for calling the SDK functions that return ErrorCode """
