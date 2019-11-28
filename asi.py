@@ -80,6 +80,13 @@ class ASICamera:
             # Fix scaling and return
             return np.right_shift(self._image_buffer, 4)
 
+    def get_dropped_frames(self):
+        """Get the number of dropped frames during video capture."""
+        n_dropped_frames = ctypes.c_int()
+        self._call_function('ASIGetDroppedFrames',
+                            self._camera_ID,
+                            ctypes.byref(n_dropped_frames))
+        return n_dropped_frames
 
     def _call_function(self, function_name, camera_ID, *args):
         """ Utility function for calling the SDK functions that return ErrorCode """
