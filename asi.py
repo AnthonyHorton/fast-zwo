@@ -83,6 +83,97 @@ class ASICamera:
                          'is_trigger_camera': bool(camera_info.is_trigger_camera)}
         return pythonic_info
 
+    def _parse_bins(self, supported_bins):
+        bins = tuple(int(b) for b in supported_bins if b != 0)
+        return bins
+
+    def _parse_formats(self, supported_formats):
+        formats = []
+        for supported_format in supported_formats:
+            format = ImgType(supported_format)
+            if format != ImgType.END:
+                formats.append(format.name)
+            else:
+                break
+        return tuple(formats)
+
+    def _parse_caps(self, control_caps):
+        """ Utility function to parse ControlCaps Structures into something more Pythonic """
+        control_type = ControlType(control_caps.control_type).name
+        control_info = {'name': control_caps.name.decode(),
+                        'description': control_caps.description.decode(),
+                        'max_value': self._parse_return_value(control_caps.max_value,
+                                                              control_type),
+                        'min_value': self._parse_return_value(control_caps.min_value,
+                                                              control_type),
+                        'default_value': self._parse_return_value(control_caps.default_value,
+                                                                  control_type),
+                        'is_auto_supported': bool(control_caps.is_auto_supported),
+                        'is_writable': bool(control_caps.is_writable),
+                        'control_type': control_type}
+        return control_info
+
+    def _parse_return_value(self, value, control_type):
+        """ Helper function to apply appropiate type conversion and/or units to value """
+        try:
+            int_value = value.value  # If not done already extract Python int from ctypes.c_long
+        except AttributeError:
+            int_value = value  # If from a ctypes struct value will already be a Python int
+
+        # Apply control type specific units and/or data types
+        if control_type in units_and_scale:
+            nice_value = int_value * units_and_scale[control_type]
+        elif control_type in boolean_controls:
+            nice_value = bool(int_value)
+        elif control_type == 'FLIP':
+            nice_value = FlipStatus(int_value).name
+        else:
+            nice_value = int_value
+
+        return nice_value
+
+    def _parse_input_value(self, value, control_type):
+        """ Helper function to convert input values to appropriate ctypes.c_long """
+
+        if control_type in units_and_scale:
+            value = get_quantity_value(value, unit=units_and_scale[control_type])
+        elif control_type == 'FLIP':
+            value = FlipStatus[value]
+
+        return ctypes.c_long(int(value))
+
+    def _image_array(self, width, height, image_type):
+        """ Creates a suitable numpy array for storing image data """
+        width = int(get_quantity_value(width, unit=u.pixel))
+        height = int(get_quantity_value(height, unit=u.pixel))
+
+        if image_type in ('RAW8', 'Y8'):
+            image_array = np.empty((height, width), dtype=np.uint8, order='C')
+        elif image_type == 'RAW16':
+            image_array = np.empty((height, width), dtype=np.uint16, order='C')
+        elif image_type == 'RGB24':
+            image_array = np.empty((3, height, width), dtype=np.uint8, order='C')
+
+        return image_array
+
+
+units_and_scale = {'AUTO_TARGET_BRIGHTNESS': u.adu,
+                   'AUTO_MAX_EXP': 1e-6 * u.second,  # Unit is microseconds
+                   'BANDWIDTHOVERLOAD': u.percent,
+                   'COOLER_POWER_PERC': u.percent,
+                   'EXPOSURE': 1e-6 * u.second,  # Unit is microseconds
+                   'OFFSET': u.adu,
+                   'TARGET_TEMP': u.Celsius,
+                   'TEMPERATURE': 0.1 * u.Celsius}  # Unit is 1/10th degree C
+
+boolean_controls = ('ANTI_DEW_HEATER',
+                    'COOLER_ON',
+                    'FAN_ON',
+                    'HARDWARE_BIN',
+                    'HIGH_SPEED_MODE',
+                    'MONO_BIN',
+                    'PATTERN_ADJUST')
+
 
 ID_MAX = 128  # Maximum value for camera integer ID (camera_ID)
 
