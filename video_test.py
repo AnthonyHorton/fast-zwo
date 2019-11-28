@@ -7,7 +7,8 @@ from asi import ASICamera
 def frame_rate_test(camera, n=100):
     start_time = time.monotonic()
     camera.start_video_capture()
-    image_array = RingBuffer(capacity=10, dtype=(np.uint16, 3672, 5496))
+    #image_array = RingBuffer(capacity=10, dtype=(np.uint16, 3672, 5496))
+    image_array = []
     for i in range(n):
         image = camera.get_video_data()
         #Start Brint's code
