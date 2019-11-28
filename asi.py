@@ -11,20 +11,32 @@ class ASICamera:
 
     def __init__(self, library_path, camera_index=0):
         self._CDLL = ctypes.CDLL(library_path)
+
+        n_cameras = self._CDLL.ASIGetNumOfConnectedCameras()
+        if n_cameras < 1:
+            msg = "No ASI cameras found!"
+            warnings.warn(msg)
+            raise RuntimeError(msg)
+
         self._camera_index = camera_index
+        if n_cameras - self._camera_index < 1:
+            mag = "Requested camera index {}, but only {} cameras found!".format(self._camera_index,
+                                                                                 n_cameras)
+            warnings.warn(msg)
+            raise RuntimeError(msg)
 
         self._info = self.get_camera_property(self._camera_index)
         self._camera_ID = self.info['camera_ID']
 
         error_code = self._CDLL.ASIOpenCamera(self._camera_ID)
         if error_code != ErroCode.SUCCESS:
-            msg = "Couldn't open camera: {}".format(error_code)
+            msg = "Couldn't open camera: {}".format(ErrorCode(error_code).name)
             warnings.warn(msg)
             raise RuntimeError(msg)
 
         result = self._CDLL.ASIInitCamera(self._camera_ID)
         if error_code != ErroCode.SUCCESS:
-            msg = "Couldn't init camera: {}".format(result)
+            msg = "Couldn't init camera: {}".format(ErrorCode(error_code).name)
             warnings.warn(msg)
             raise RuntimeError(msg)
 
@@ -33,7 +45,7 @@ class ASICamera:
         camera_info = CameraInfo()
         error_code = self._CDLL.ASIGetCameraProperty(ctypes.byref(camera_info), camera_index)
         if error_code != ErrorCode.SUCCESS:
-            msg = "Error getting camera properties: {}".format(error_code)
+            msg = "Error getting camera properties: {}".format(ErrorCode(error_code).name)
             warnings.warn(msg)
             raise RuntimeError(msg)
 
