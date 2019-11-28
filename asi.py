@@ -70,7 +70,7 @@ class ASICamera:
             self._call_function('ASIGetVideoData',
                                 self._camera_ID,
                                 self._image_buffer.ctypes.data_as(ctypes.POINTER(ctypes.c_byte)),
-                                ctypes.c_long(video_data.nbytes),
+                                ctypes.c_long(self._image_buffer.nbytes),
                                 ctypes.c_int(-1))
             # If set timeout to anything but -1 (no timeout) this call times out instantly?
         except RuntimeError:
